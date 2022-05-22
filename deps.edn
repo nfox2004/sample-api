@@ -1,0 +1,17 @@
+{:paths ["src/main"]
+
+ :deps  {io.pedestal/pedestal.service  {:mvn/version "0.5.9"}
+         io.pedestal/pedestal.route    {:mvn/version "0.5.9"}
+         io.pedestal/pedestal.immutant {:mvn/version "0.5.9"}
+         org.slf4j/slf4j-simple        {:mvn/version "1.7.32"}
+         environ/environ               {:mvn/version "1.2.0"}
+         org.clojure/tools.namespace   {:mvn/version "1.0.0"}
+         com.novemberain/monger        {:mvn/version "3.5.0"}}
+
+ :aliases
+        {:dev {:extra-paths ["src/dev"]
+               :jvm-opts    ["-XX:-OmitStackTraceInFastThrow"
+                             "-Ddev"
+                             "-Xmx1g"
+                             "-Daxis2.repo=resources"
+                             "-Dclojure.core.async.pool-size=50"]}}}
