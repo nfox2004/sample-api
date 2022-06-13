@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Zofran",
+    "availability": 100,
+    "price": 14
+  },
+  {
+    "name": "Amoxil",
+    "availability": 50,
+    "price": 5
+  },
+  {
+    "name": "Glucophage",
+    "availability": 60,
+    "price": 10
+  },
+  {
+    "name": "Motrin",
+    "availability": 70,
+    "price": 12
+  }
+]
+
+

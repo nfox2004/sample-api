@@ -1,22 +1,18 @@
 
 
-Start up monodb 
- $ docker-compose up
- 
-or to run in the background 
-
-$ docker-compose -d up
- 
+Start up postgres 
+$ docker-compose up -d postgres
 
 
-Admin console is running at http://localhost:8081/
+Once the server is running, sample request
 
+See all entries 
+```
+curl http://localhost:5000/drugs
 
+```
 
-The docker exec command allows you to run commands inside a Docker container. The following command line will give you a bash shell inside your mongo container:
-
-$ docker exec -it some-mongo bash
-
-The MongoDB Server log is available through Docker's container log:
-$ docker logs some-mongo
-
+To add a new entry
+```
+curl -X POST -H 'Content-Type: application/json' -i http://localhost:5000/drugs --data '{"name": "Non Existant", "availability": 104, "price": 56.79}'
+```

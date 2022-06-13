@@ -2,48 +2,30 @@
   (:require
     [clojure.tools.namespace.repl :as tools-ns :refer [set-refresh-dirs]]
     [io.pedestal.http :as http]
-    [app.core :refer [service-map]]
-    [monger.core :as mg]
-    [monger.collection :as mc]
-    [monger.credentials :as mcred])
-  (:import org.bson.types.ObjectId))
+    [dealer-api.core :as core]
+    [clojure.tools.namespace.repl :refer [refresh]]))
 
+;; For interactive development
+(defonce server-atom (atom nil))
 
+(defn go []
+  (reset! server-atom
+    (core/server))
+  (prn "Server started on localhost")
+  (prn "Enter (reset) to reload.")
+  :started)
 
+(defn halt []
+  (http/stop @server-atom))
 
-(defn- refresh [& args]
-  (apply tools-ns/refresh args))
-
-
+(defn reset []
+  (halt)
+  (refresh :after 'user/go))
 
 
 (comment
 
-  ;(require 'development)
-  ;(in-ns 'development)
-
-  (-> service-map http/create-server http/start)
-
-  (let [host        "localhost"
-        port        (Integer/parseInt "27017")
-        database    "people"
-        credentials (mcred/create
-                      "root"
-                      "admin"
-                      "rootpassword")]
-    (defn monger
-      "Monger connection like a boss, better than before I guess."
-      []
-      (let [conn (mg/connect-with-credentials host port credentials)]
-        (mg/get-db conn database))))
-
-  (mc/insert-and-return (monger) "people" {:name "John" :age 30})
-
-  (mc/find (monger) "people" {:name "John"})
-
-  (mc/find-maps (monger) "people")
-
-  (let [conn (mg/connect)]
-    (mg/disconnect conn))
+  ;; after the repl is started, execute (go)
+  (go)
 
   )
