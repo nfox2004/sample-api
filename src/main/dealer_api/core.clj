@@ -3,7 +3,7 @@
             [environ.core :refer [env]]
             [dealer-api.drugs-service :as ds]
             [io.pedestal.http.body-params :refer [body-params]]
-            [io.pedestal.log :as log]))
+            [io.pedestal.http.route :as route]))
 
 (defn all-drugs [_]
   (http/json-response {:foo "bar"}))
@@ -25,17 +25,39 @@
         (http/json-response {:msg "Please send a valid drug."})
         :status 400))))
 
-(def routes #{["/" :get respond-hello :route-name :hello-world]
-              ["/drugs" :get all-drugs :route-name :get-drugs]
-              ["/drugs" :post
-               [(body-params) create-drug]
-               :route-name :post-drugs]
-              #_["/heroes/:hero" :get get-hero :route-name :get-hero]
-              #_["/heroes" :get get-heroes :route-name :get-heroes]})
+(defn get-drug [{{:keys [id]} :path-params}]
+  (let [drug (ds/get-drugs (Integer/parseInt id))]
+    (if drug
+      (http/json-response drug)
+      (assoc
+        (http/json-response {:msg "Nothing found"})
+        :status 404))))
+
+(defn update-drug [{{:keys [id]} :path-params
+                    :as          request}]
+  (let [drug (select-keys (-> request :json-params) [:name :availability :price])
+        {id :id} (ds/update-drug! (assoc drug :id (Integer/parseInt id)))]
+    (if id
+      (http/json-response {:msg "Drug updated successfully."
+                           :id  id})
+      (assoc
+        (http/json-response {:msg "Please send a valid request."})
+        :status 400))))
+
+(def routes (route/expand-routes
+              #{["/" :get respond-hello :route-name :hello-world]
+                ["/drugs" :get all-drugs :route-name :get-drugs]
+                ["/drugs" :post
+                 [(body-params) create-drug]
+                 :route-name :post-drugs]
+                ["/drugs/:id" :put
+                 [(body-params) update-drug]
+                 :route-name :put-drugs]
+                ["/drugs/:id" :get get-drug :route-name :get-drug]
+                }))
 
 
-;; TASK - add put and delete and get by id
-
+;; TASK - delete
 
 ;; TASK - pull from config edn file
 (def service-map {::http/routes routes                      ; Routes
@@ -48,4 +70,11 @@
   (-> service-map http/create-server http/start))
 
 (defn -main [_] (-> service-map http/create-server http/start)) ; Server Instance
+
+
+;curl -X PUT --header 'Content-Type: application/json' \
+;-d '{ "name": "Bigger Biceps", "price": 100, "availability": "10" }' \
+;http://localhost:5000/drugs/11
+
+
 
